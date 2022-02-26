@@ -4,15 +4,15 @@ public class CatalogItem {
 	
 	private String name;
 	
-	private String description;
+	private String descr;
 	
 	private int rating;
 	
 	
 
-	public CatalogItem(String name, String description, int rating) {
+	public CatalogItem(String name, String descr, int rating) {
 		this.name = name;
-		this.description = description;
+		this.descr = descr;
 		this.rating = rating;
 	}
 
@@ -24,12 +24,12 @@ public class CatalogItem {
 		this.name = name;
 	}
 
-	public String getDescription() {
-		return description;
+	public String getDescr() {
+		return descr;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setDescr(String descr) {
+		this.descr = descr;
 	}
 
 	public int getRating() {
