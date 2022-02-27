@@ -33,19 +33,19 @@ public class MovieCatalogResource {
 	
 	// get all rated movie IDs
 	@GetMapping("/{userId}")
-	@HystrixCommand(fallbackMethod = "getFallbackCatalog")
 	public List<CatalogItem> getCatalog(@PathVariable("userId") String userId) {
 		
 		
-		UserRating ratings = getUserRating(userId);
+		UserRating ratings = getUserRating(userId); // Extracted to method
 		
 		// for each movie ID, call movie info service and get details
-		return ratings.getUserRating().stream().map(rating -> getCatalogItem(rating))
+		return ratings.getUserRating().stream().map(rating -> getCatalogItem(rating)) // Extracted to method
 			.collect(Collectors.toList());
 		
 	}
 	
 	// Extracted method
+	@HystrixCommand(fallbackMethod = "getFallbackUserRating")
 	private UserRating getUserRating(String userId) {
 		
 		return restTemplate.getForObject("http://RATINGS-DATA-SERVICE/ratingsdata/users/" + userId, UserRating.class);
@@ -53,18 +53,33 @@ public class MovieCatalogResource {
 	
 
 	// Extracted method
+	@HystrixCommand(fallbackMethod = "getFallbackCatalogItem")
 	private CatalogItem getCatalogItem(Rating rating) {
 		Movie movie = restTemplate.getForObject("http://MOVIE-INFO-SERVICE/movies/" + rating.getMovieId(), Movie.class);
 
-		// put them all together
+		// put them all together (Rating + Movie) to get Catalog Item
 		return new CatalogItem(movie.getName(), movie.getDescription(), rating.getRating());
 	}
-
+	
+	
+	
+	
+	
+	// FALLBACK METHODS
+	
+	private UserRating getFallbackUserRating(@PathVariable("userId") String userId) {
+		UserRating userRating = new UserRating();
+		userRating.setUserId(userId);
+		userRating.setUserRating(Arrays.asList(new Rating("0", 0)));
+		return userRating;
+	}
+	
+	
+	private CatalogItem getFallbackCatalogItem(Rating rating) {
+		return new CatalogItem("Movie name not found", "", rating.getRating());
+	}
 
 	
-	public List<CatalogItem> getFallbackCatalog(@PathVariable("userId") String userId) {
-		return Arrays.asList(new CatalogItem("No movie", "", 0));
-	}
 
 }
 
