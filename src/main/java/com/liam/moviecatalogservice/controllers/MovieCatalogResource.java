@@ -17,6 +17,7 @@ import com.liam.moviecatalogservice.models.CatalogItem;
 import com.liam.moviecatalogservice.models.Movie;
 //import com.liam.moviecatalogservice.models.Rating;
 import com.liam.moviecatalogservice.models.UserRating;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @RestController
 @RequestMapping("/catalog")
@@ -29,6 +30,7 @@ public class MovieCatalogResource {
 	
 	// get all rated movie IDs
 	@GetMapping("/{userId}")
+	@HystrixCommand(fallbackMethod = "getFallbackCatalog")
 	public List<CatalogItem> getCatalog(@PathVariable("userId") String userId) {
 		
 		
